@@ -1,0 +1,91 @@
+#NEXTHIKE PROJECT 2 - WEB SCRAPPING AND WORD FREQUENCY COUNT
+
+# importing necessary libraries / modules
+import requests
+from bs4 import BeautifulSoup
+from collections import Counter
+import re
+
+# TASK 1- WEB SCRAPPING
+
+# Define a function to get the latest articles from python.org
+def get_latest_python_articles():
+    
+    # Set the url to the python.org website
+    url = "https://www.python.org/"
+    
+    # Send a GET request to the url and store the response
+    response=requests.get(url)
+    
+    # Check if the response status code is 200 (OK)
+    if response.status_code == 200:
+        
+        # Parse the response text using BeautifulSoup
+        soup = BeautifulSoup(response.text,"html.parser")
+        
+        # Create an empty list to store the article titles
+        latest_articles = []
+
+        # Loop through the list items in the blog-widget section
+        for article in soup.select(".blog-widget li"):
+            
+            # Get the text of the anchor tag and strip any whitespace
+            title=article.a.text.strip()
+            
+            # Append the title to the latest_articles list
+            latest_articles.append(title)
+            
+        # Return the latest_articles list
+        return latest_articles
+    
+    # If the response status code is not 200, print an error message and return an empty list
+    else:
+        print(f"fail to retrieve informatio.status code:{response.status_code}")
+        return[]     
+
+# Check if the script is run as the main module
+if __name__=="__main__":
+    
+    # Call the get_latest_python_articles function and store the result
+    python_articles=get_latest_python_articles()
+    
+    # Check if the python_articles list is not empty
+    if python_articles:
+        
+        # Print a message indicating the new articles
+        print("New News in the python.org section")
+        
+        # Loop through the python_articles list with the index and the article title
+        for index,article in enumerate(python_articles,1):
+            
+            # Print the index and the article title
+            print(f"{index}.{article}")
+            
+    # If the python_articles list is empty, print a message indicating no articles found
+    else:
+        print("no articles found")
+
+# TASK 2- WORD FREQUENCY COUNT OF SCRAPPED TITLES
+               
+from collections import Counter
+import re
+
+def get_word_frequencies(articles):
+    # Combine all articles into one string
+    text = ' '.join(articles)
+
+    # Remove punctuation and convert to lowercase
+    text = re.sub(r'[^\w\s]', '', text).lower()
+
+    # Split the text into words
+    words = text.split()
+
+    # Count the frequency of each word
+    word_frequencies = Counter(words)
+
+    return word_frequencies
+
+word_frequencies = get_word_frequencies(python_articles)
+print("\nWord frequencies in the scraped text:")
+for word, frequency in word_frequencies.items():
+    print(f"{word}: {frequency}")
